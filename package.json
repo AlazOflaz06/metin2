@@ -1,0 +1,13 @@
+{
+  "name": "anka-3d-mmorpg",
+  "version": "2.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "bcrypt": "^5.1.0",
+    "ws": "^8.13.0",
+    "uuid": "^9.0.0",
+    "cors": "^2.8.5"
+  }
+}

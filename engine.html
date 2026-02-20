@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anka MMO</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="auth">
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+</div>
+
+<div id="ui" style="display:none;">
+  <div id="stats"></div>
+  <div id="metinHP"></div>
+  <div id="bossHP"></div>
+  <button onclick="upgradeItem()">+ Bas</button>
+  <button onclick="equipItem()">Equip</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="ui.js"></script>
+<script src="engine.js"></script>
+
+</body>
+</html>

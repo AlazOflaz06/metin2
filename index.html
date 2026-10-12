@@ -1,0 +1,352 @@
+cursor: pointer; font-weight: bold; transition: all 0.2s;
+}
+.box button:hover { background: #b8862d; }
+
+/* HUD Header */
+#top { position: absolute; top: 12px; left: 16px; display: flex; gap: 12px; align-items: center; background: rgba(23,19,16,0.85); border: 1px solid var(--line); padding: 8px 14px; border-radius: 6px; z-index: 10; backdrop-filter: blur(4px); }
+#top b { font-family: var(--font-display); color: var(--gold); font-size: 16px; }
+#top span { color: var(--mute); font-size: 13px; }
+.gold-text { color: var(--gold); font-weight: bold; }
+
+/* Target Bar */
+#target { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: min(320px, 60vw); background: rgba(23,19,16,0.9); border: 1px solid var(--line); padding: 8px 12px; border-radius: 6px; text-align: center; z-index: 10; }
+#target .nm { font-family: var(--font-display); color: #fff; font-size: 14px; margin-bottom: 4px; }
+
+/* Progress Bars */
+.bar { height: 10px; background: #000; border: 1px solid var(--line); border-radius: 3px; position: relative; overflow: hidden; margin-top: 2px; }
+.bar i { display: block; height: 100%; width: 0%; transition: width 0.15s ease-out; }
+.bar em { position: absolute; inset: 0; font-size: 9px; line-height: 10px; text-align: center; color: #fff; font-style: normal; text-shadow: 0 1px 2px #000; }
+.hp i { background: linear-gradient(#d9473b, #9c241b); }
+.mp i { background: linear-gradient(#4a78c9, #284c8a); }
+.xp i { background: linear-gradient(#e0b24a, #9e7925); }
+
+/* Bottom HUD */
+#hud { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: min(720px, calc(100% - 24px)); background: rgba(23,19,16,0.92); border: 1px solid var(--line); padding: 10px; border-radius: 6px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
+#bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#bars .xp { grid-column: 1 / -1; height: 6px; }
+#controls { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.sk-btn { flex: 1; min-width: 44px; height: 44px; background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; position: relative; }
+.sk-btn:hover { border-color: var(--gold); }
+.sk-btn kbd { font-family: var(--font-display); color: var(--gold); font-weight: bold; font-size: 12px; }
+.sk-btn.on { border-color: var(--gold); background: #32251a; box-shadow: 0 0 8px rgba(217,164,65,0.4); }
+
+/* Menu Panel Side */
+#sideMenu { position: absolute; top: 12px; right: 16px; display: flex; gap: 8px; z-index: 10; }
+#sideMenu button { background: var(--panel); border: 1px solid var(--line); color: var(--gold); padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: var(--font-display); }
+
+#panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 100%); background: var(--panel); border-left: 2px solid var(--line); z-index: 40; display: flex; flex-direction: column; padding: 16px; overflow-y: auto; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 12px; }
+.panel-header h3 { margin: 0; color: var(--gold); font-family: var(--font-display); font-size: 20px; }
+.close-btn { background: transparent; border: none; color: var(--mute); font-size: 20px; cursor: pointer; }
+.close-btn:hover { color: #fff; }
+
+/* Log Console */
+#log { position: absolute; left: 16px; bottom: 120px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; max-width: 320px; z-index: 5; }
+#log div { background: rgba(11,9,8,0.8); padding: 4px 8px; border-radius: 4px; font-size: 12px; border-left: 2px solid var(--gold); animation: fadeOut 6s forwards; }
+@keyframes fadeOut { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <!-- Giriş Ekranı -->
+  <div id="loginScreen">
+    <div class="box">
+      <h2>METIN2 3D</h2>
+      <p style="color:var(--mute); font-size:13px; margin-bottom:16px;">Yenilenmiş Vadi Deneyimi</p>
+      <input type="text" id="usernameInput" maxlength="14" placeholder="Karakter Adı" value="AlazOflaz">
+      <button id="startGameBtn">Oyuna Katıl</button>
+    </div>
+  </div>
+
+  <!-- Üst Bilgi Paneli -->
+  <div id="top">
+    <b id="pName">AlazOflaz</b>
+    <span id="pLv">Sv 1</span>
+    <span>Yang: <b id="pGold" class="gold-text">0</b></span>
+  </div>
+
+  <!-- Sağ Üst Butonlar -->
+  <div id="sideMenu">
+    <button id="openInvBtn">Çanta (I)</button>
+    <button id="openStatsBtn">Statü (C)</button>
+  </div>
+
+  <!-- Hedef Göstergesi -->
+  <div id="target" style="display:none;">
+    <div class="nm" id="tName">Vahşi Köpek</div>
+    <div class="bar hp"><i id="tHpBar"></i><em id="tHpTxt">100 / 100</em></div>
+  </div>
+
+  <!-- Oyun Log Mesajları -->
+  <div id="log"></div>
+
+  <!-- Alt Kontrol ve Barlar -->
+  <div id="hud">
+    <div id="bars">
+      <div class="bar hp"><i id="pHpBar"></i><em id="pHpTxt">100 / 100</em></div>
+      <div class="bar mp"><i id="pMpBar"></i><em id="pMpTxt">50 / 50</em></div>
+      <div class="bar xp"><i id="pXpBar"></i></div>
+    </div>
+    <div id="controls">
+      <button class="sk-btn" id="btnHpPot"><kbd>Z</kbd>HP Pot</button>
+      <button class="sk-btn" id="btnMpPot"><kbd>X</kbd>MP Pot</button>
+      <button class="sk-btn" id="btnAuto"><kbd>F</kbd>Oto Av</button>
+      <button class="sk-btn" id="btnSkill1"><kbd>1</kbd>Ruh Vuruşu</button>
+      <button class="sk-btn" id="btnSkill2"><kbd>2</kbd>Güçlü Beden</button>
+    </div>
+  </div>
+
+  <!-- Yan Menü (Envanter / Statü) -->
+  <div id="panel" style="display:none;">
+    <div class="panel-header">
+      <h3 id="panelTitle">Envanter</h3>
+      <button class="close-btn" id="closePanelBtn">✕</button>
+    </div>
+    <div id="panelContent">
+      <!-- Dinamik İçerik -->
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // --- OYUN DURUMU & DEĞİŞKENLER ---
+  const state = {
+    name: 'AlazOflaz',
+    lv: 1, xp: 0, gold: 500,
+    hp: 120, maxHp: 120,
+    mp: 60, maxMp: 60,
+    str: 10, dex: 10, vit: 10, int: 10, statPts: 0,
+    x: 0, z: 0,
+    autoHunt: false,
+    target: null
+  };
+
+  const mobs = [];
+  const MAX_MOBS = 35;
+
+  // --- THREE.JS KURULUMU ---
+  const canvas = document.getElementById('c');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b0908);
+  scene.fog = new THREE.FogExp2(0x0b0908, 0.015);
+
+  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
+
+  // Işıklandırma
+  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambient);
+
+  const sun = new THREE.DirectionalLight(0xffdfa9, 0.8);
+  sun.position.set(40, 80, 40);
+  sun.castShadow = true;
+  scene.add(sun);
+
+  // --- ZEMİN VE ÇEVRE ---
+  const groundGeo = new THREE.PlaneGeometry(300, 300, 32, 32);
+  groundGeo.rotateX(-Math.PI / 2);
+  const groundMat = new THREE.MeshLambertMaterial({ color: 0x221b16 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Izgara Efekti (Vadi Hissiyatı)
+  const grid = new THREE.GridHelper(300, 60, 0x3a2e25, 0x171310);
+  grid.position.y = 0.01;
+  scene.add(grid);
+
+  // --- KARAKTER (OYUNCU) ---
+  const playerGroup = new THREE.Group();
+  scene.add(playerGroup);
+
+  const bodyGeo = new THREE.CylinderGeometry(0.5, 0.3, 1.8, 8);
+  const bodyMat = new THREE.MeshLambertMaterial({ color: 0xd9a441 });
+  const playerBody = new THREE.Mesh(bodyGeo, bodyMat);
+  playerBody.position.y = 0.9;
+  playerBody.castShadow = true;
+  playerGroup.add(playerBody);
+
+  // Kılıç
+  const swordGeo = new THREE.BoxGeometry(0.1, 1.2, 0.1);
+  const swordMat = new THREE.MeshLambertMaterial({ color: 0xcccccc });
+  const sword = new THREE.Mesh(swordGeo, swordMat);
+  sword.position.set(0.6, 1.0, 0.3);
+  sword.rotation.x = Math.PI / 4;
+  playerGroup.add(sword);
+
+  // --- CANAVAR ÜRETİMİ ---
+  function spawnMob() {
+    const mobGroup = new THREE.Group();
+    const geo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+    const mat = new THREE.MeshLambertMaterial({ color: 0xc0392f });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.y = 0.6;
+    mesh.castShadow = true;
+    mobGroup.add(mesh);
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 15 + Math.random() * 60;
+    mobGroup.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
+
+    scene.add(mobGroup);
+
+    const mobData = {
+      group: mobGroup,
+      name: 'Vahşi Köpek',
+      hp: 80, maxHp: 80,
+      lv: 1, xp: 25, gold: 15,
+      dead: false
+    };
+    mobs.push(mobData);
+  }
+
+  for (let i = 0; i < MAX_MOBS; i++) spawnMob();
+
+  // --- ARAYÜZ VE LOG YÖNETİMİ ---
+  function log(msg) {
+    const container = document.getElementById('log');
+    const div = document.createElement('div');
+    div.textContent = msg;
+    container.appendChild(div);
+    if (container.children.length > 5) container.removeChild(container.firstChild);
+    setTimeout(() => { if (div.parentNode) div.parentNode.removeChild(div); }, 6000);
+  }
+
+  function updateHud() {
+    document.getElementById('pName').textContent = state.name;
+    document.getElementById('pLv').textContent = `Sv ${state.lv}`;
+    document.getElementById('pGold').textContent = state.gold.toLocaleString();
+
+    document.getElementById('pHpBar').style.width = `${(state.hp / state.maxHp) * 100}%`;
+    document.getElementById('pHpTxt').textContent = `${Math.ceil(state.hp)} / ${state.maxHp}`;
+
+    document.getElementById('pMpBar').style.width = `${(state.mp / state.maxMp) * 100}%`;
+    document.getElementById('pMpTxt').textContent = `${Math.floor(state.mp)} / ${state.maxMp}`;
+
+    const reqXp = state.lv * 100;
+    document.getElementById('pXpBar').style.width = `${(state.xp / reqXp) * 100}%`;
+
+    if (state.target && !state.target.dead) {
+      document.getElementById('target').style.display = 'block';
+      document.getElementById('tName').textContent = `${state.target.name} (Sv ${state.target.lv})`;
+      document.getElementById('tHpBar').style.width = `${(state.target.hp / state.target.maxHp) * 100}%`;
+      document.getElementById('tHpTxt').textContent = `${Math.ceil(state.target.hp)} / ${state.target.maxHp}`;
+    } else {
+      document.getElementById('target').style.display = 'none';
+    }
+  }
+
+  // --- SAVAŞ & SİSTEMLER ---
+  function attackTarget() {
+    if (!state.target || state.target.dead) return;
+
+    const dmg = 18 + Math.floor(state.str * 1.2) + Math.floor(Math.random() * 8);
+    state.target.hp -= dmg;
+    log(`${state.target.name} canavarına ${dmg} hasar vuruldu!`);
+
+    if (state.target.hp <= 0) {
+      state.target.dead = true;
+      scene.remove(state.target.group);
+      log(`${state.target.name} yok edildi! +${state.target.xp} XP, +${state.target.gold} Yang`);
+      
+      state.xp += state.target.xp;
+      state.gold += state.target.gold;
+
+      // Seviye Atlama
+      const reqXp = state.lv * 100;
+      if (state.xp >= reqXp) {
+        state.xp -= reqXp;
+        state.lv++;
+        state.maxHp += 20;
+        state.hp = state.maxHp;
+        state.str += 2;
+        log(`SEVİYE ATLADIN! Yeni Seviye: ${state.lv}`);
+      }
+
+      state.target = null;
+      setTimeout(spawnMob, 4000);
+    }
+  }
+
+  // --- ETKİLEŞİM VE GİRDİLER ---
+  document.getElementById('startGameBtn').addEventListener('click', () => {
+    const val = document.getElementById('usernameInput').value.trim();
+    if (val) state.name = val;
+    document.getElementById('loginScreen').style.display = 'none';
+    log(`Hoş geldin, ${state.name}! Vadide avlanmaya başla.`);
+  });
+
+  document.getElementById('btnAuto').addEventListener('click', () => {
+    state.autoHunt = !state.autoHunt;
+    document.getElementById('btnAuto').classList.toggle('on', state.autoHunt);
+    log(state.autoHunt ? 'Otomatik Av Açıldı.' : 'Otomatik Av Kapatıldı.');
+  });
+
+  document.getElementById('btnHpPot').addEventListener('click', () => {
+    state.hp = Math.min(state.maxHp, state.hp + 50);
+    log('HP İksiri kullanıldı (+50 HP)');
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // --- OYUN DÖNGÜSÜ (LOOP) ---
+  let lastTime = performance.now();
+
+  function animate(now) {
+    requestAnimationFrame(animate);
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    // Otomatik Av Mantığı
+    if (state.autoHunt && (!state.target || state.target.dead)) {
+      const alive = mobs.filter(m => !m.dead);
+      if (alive.length > 0) {
+        alive.sort((a, b) => playerGroup.position.distanceTo(a.group.position) - playerGroup.position.distanceTo(b.group.position));
+        state.target = alive[0];
+      }
+    }
+
+    // Hedefe Doğru İlerleme ve Saldırı
+    if (state.target && !state.target.dead) {
+      const pPos = playerGroup.position;
+      const tPos = state.target.group.position;
+      const dist = pPos.distanceTo(tPos);
+
+      playerGroup.lookAt(tPos.x, pPos.y, tPos.z);
+
+      if (dist > 2.0) {
+        pPos.x += (tPos.x - pPos.x) * dt * 2.5;
+        pPos.z += (tPos.z - pPos.z) * dt * 2.5;
+      } else {
+        attackTarget();
+      }
+    }
+
+    // Kamera Takibi
+    camera.position.set(playerGroup.position.x, playerGroup.position.y + 12, playerGroup.position.z + 16);
+    camera.lookAt(playerGroup.position.x, playerGroup.position.y + 1, playerGroup.position.z);
+
+    updateHud();
+    renderer.render(scene, camera);
+  }
+
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
